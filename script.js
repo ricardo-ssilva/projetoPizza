@@ -1,6 +1,8 @@
 let c = (el) => document.querySelector(el)
 
 pizzaJson.map((item , index) => {
+
+    // Parte 01
    let pizzaItem = c('.models .pizza-item').cloneNode(true)
   
 
@@ -10,5 +12,5 @@ pizzaJson.map((item , index) => {
     pizzaItem.querySelector('.pizza-item--desc').innerHTML = item.description
     document.querySelector('.pizza-area').append(pizzaItem)
 
-   
+   //Parte 01 - Finalizada 
 })
