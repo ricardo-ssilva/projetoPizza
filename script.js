@@ -1,7 +1,11 @@
-let c = (el) => document.querySelector(el)
-let cs = (el) => document.querySelectorAll(el)
+let cart = []
 let qtdModal = 1
+let modalKey = 0
 
+
+const c = (el) => document.querySelector(el)
+const cs = (el) => document.querySelectorAll(el)
+ 
 pizzaJson.map((item, index) => {
 
 
@@ -29,6 +33,7 @@ pizzaJson.map((item, index) => {
         }, 200)
 
         let key = e.target.closest('.pizza-item').getAttribute('data-key', index)
+        modalKey = key
 
 
         c('.pizzaBig img').src = pizzaJson[key].img
@@ -65,3 +70,83 @@ c('.pizzaInfo--qtmais').addEventListener('click', () => {
     qtdModal++
     c('.pizzaInfo--qt').innerHTML = qtdModal
 })
+
+cs('.pizzaInfo--size').forEach((size, sizeIndex) => {
+    size.addEventListener('click', (e) => {
+        c('.pizzaInfo--size.selected').classList.remove('selected')
+        size.classList.add('selected')
+    })
+    
+})
+c('.pizzaInfo--addButton').addEventListener('click', () => {
+    
+    let size = parseInt(c('.pizzaInfo--size.selected').getAttribute('data-key'))
+
+    let indentifier = pizzaJson[modalKey].id + '@' + size
+
+    let key = cart.findIndex((item) =>  item.indentifier == indentifier)
+
+    if(key > -1) {
+        cart[key].qt += qtdModal
+    } else {
+        cart.push({
+            indentifier,
+            id: pizzaJson[modalKey].id,
+            size,
+            qt: qtdModal
+        })
+    }
+    closeModal()
+    updateCart()
+})
+
+function updateCart() {
+    if(cart.length > 0) {
+        c('aside').classList.add('show')
+        c('.cart').innerHTML = ' '
+        for(let i in cart) {
+            let pizzaItem = pizzaJson.find((item) => item.id == cart[i].id)
+
+            let cartItem = c('.models .cart--item').cloneNode(true)
+            c('.cart').append(cartItem)
+
+            let pizzaSizeName
+            switch (cart[i].size) {
+                case 0:
+                    pizzaSizeName = 'P'
+                    break;
+                case 1:
+                    pizzaSizeName = 'M'
+                    break;
+                case 2:
+                    pizzaSizeName = 'G'
+                    break;
+            
+            }
+
+            let pizzaName = `${pizzaItem.name} (${pizzaSizeName})`
+
+            cartItem.querySelector('img').src = pizzaItem.img
+            cartItem.querySelector('.cart--item-nome').innerHTML = pizzaName
+            cartItem.querySelector('.cart--item--qt').innerHTML = cart[i].qt
+            cartItem.querySelector('.cart--item-qtmenos').addEventListener('click', () => {
+                if(cart[i].qt > 1 ){
+                    cart[i].qt--
+                } else {
+                    cart.splice(i, 1)
+                }
+                updateCart()
+            })
+            cartItem.querySelector('.cart--item-qtmais').addEventListener('click', () => {
+                cart[i].qt++
+                updateCart()
+            })
+
+
+            
+        }
+
+    } else {
+        c('aside').classList.remove('show')
+    }
+}
